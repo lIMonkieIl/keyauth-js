@@ -1,0 +1,25 @@
+{
+    "language": "en",
+    "ignorePaths": [
+        "static/**",
+        "pnpm-lock.yaml",
+        "package-lock.json",
+        "yarn.lock"
+    ],
+    "dictionaries": [
+        "html",
+        "typescript",
+        "softwareTerms",
+        "companies"
+    ],
+    "allowCompoundWords": true,
+    "words": [
+        "fileid",
+        "hwid",
+        "keyauthjs",
+        "ownerid",
+        "pcuser",
+        "varid",
+        "webid"
+    ]
+}

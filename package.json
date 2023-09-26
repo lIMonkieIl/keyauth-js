@@ -1,0 +1,21 @@
+{
+    "private": true,
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "ts-node ./main.ts",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+        "@types/node": "^20.5.6",
+        "eslint": "^8.47.0",
+        "prettier": "^3.0.2",
+        "ts-node": "^10.9.1",
+        "tsconfig": "workspace:*",
+        "turbo": "latest"
+    },
+    "packageManager": "pnpm@8.6.10",
+    "name": "keyauthjs"
+}
