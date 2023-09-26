@@ -1,0 +1,17 @@
+{
+    "name": "types",
+    "version": "0.0.1",
+    "main": "dist/types.js",
+    "types": "dist/types.d.ts",
+    "scripts": {
+        "build": "tsc --build"
+    },
+    "dependencies": {
+        "typed-emitter": "^2.1.0"
+    },
+    "devDependencies": {
+        "prettier": "^3.0.2",
+        "tsconfig": "workspace:*",
+        "typescript": "^5.2.2"
+    }
+}

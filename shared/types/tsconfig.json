@@ -1,0 +1,10 @@
+{
+    "extends": "tsconfig/base.json",
+    "compilerOptions": {
+        "plugins": [{ "name": "types" }],
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "paths": {}
+    },
+    "exclude": ["node_modules", "./dist/**/*"]
+}
