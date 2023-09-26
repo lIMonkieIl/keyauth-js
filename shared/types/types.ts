@@ -41,14 +41,8 @@ export interface LoginResponse extends BaseResponse {
 // Response after logging out
 export interface LogoutResponse extends BaseResponse {}
 
-// Options for configuring the client AP
-export interface ClientApiOptions {
-    app: App;
-    options?: Options;
-}
-
 // Configuration options
-export interface Options {
+export interface ClientOptions {
     ratelimit?: { maxTokens: number; refillRate: number };
     convertTimes?: boolean;
     baseUrl?: string;
