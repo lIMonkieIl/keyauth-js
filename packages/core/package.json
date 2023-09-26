@@ -1,0 +1,33 @@
+{
+    "name": "@keyauthjs/core",
+    "version": "0.0.1",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc --build"
+    },
+    "dependencies": {
+        "axios": "^1.4.0",
+        "install": "^0.13.0",
+        "ts-mixer": "^6.0.3",
+        "ts-node": "^10.9.1",
+        "uuid": "^9.0.0",
+        "winston": "^3.10.0"
+    },
+    "devDependencies": {
+        "@types/uuid": "^9.0.3",
+        "@types/node": "^20.5.6",
+        "@typescript-eslint/eslint-plugin": "^6.4.1",
+        "@typescript-eslint/parser": "^6.4.1",
+        "eslint": "^8.47.0",
+        "eslint-config-custom": "workspace:*",
+        "eslint-config-prettier": "^9.0.0",
+        "eslint-plugin-prettier": "^5.0.0",
+        "oceanic.js": "^1.8.0",
+        "typed-emitter": "^2.1.0",
+        "prettier": "^3.0.2",
+        "tsconfig": "workspace:*",
+        "typescript": "^5.2.2",
+        "types": "workspace:*"
+    }
+}
