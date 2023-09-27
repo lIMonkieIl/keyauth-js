@@ -1,0 +1,9 @@
+{
+    "extends": "tsconfig/seller.json",
+    "compilerOptions": {
+        "plugins": [{ "name": "seller" }],
+        "outDir": "./dist"
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "./dist/**/*"]
+}
