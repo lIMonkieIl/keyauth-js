@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@keyauthjs/core':
+      '@keyauthjs/client':
         specifier: workspace:*
-        version: link:packages/core
+        version: link:packages/client
     devDependencies:
       '@types/node':
         specifier: ^20.5.6
@@ -31,7 +31,7 @@ importers:
         specifier: latest
         version: 1.10.14
 
-  packages/core:
+  packages/client:
     dependencies:
       axios:
         specifier: ^1.4.0
@@ -88,6 +88,46 @@ importers:
       typed-emitter:
         specifier: ^2.1.0
         version: 2.1.0
+      types:
+        specifier: workspace:*
+        version: link:../../shared/types
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
+
+  packages/seller:
+    dependencies:
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.5.6
+        version: 20.5.6
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^6.4.1
+        version: 6.4.1(@typescript-eslint/parser@6.4.1)(eslint@8.47.0)(typescript@5.2.2)
+      '@typescript-eslint/parser':
+        specifier: ^6.4.1
+        version: 6.4.1(eslint@8.47.0)(typescript@5.2.2)
+      eslint:
+        specifier: ^8.47.0
+        version: 8.47.0
+      eslint-config-custom:
+        specifier: workspace:*
+        version: link:../../shared/eslint-config-custom
+      eslint-config-prettier:
+        specifier: ^9.0.0
+        version: 9.0.0(eslint@8.47.0)
+      eslint-plugin-prettier:
+        specifier: ^5.0.0
+        version: 5.0.0(eslint-config-prettier@9.0.0)(eslint@8.47.0)(prettier@3.0.2)
+      prettier:
+        specifier: ^3.0.2
+        version: 3.0.2
+      tsconfig:
+        specifier: workspace:*
+        version: link:../../shared/tsconfig
       types:
         specifier: workspace:*
         version: link:../../shared/types

@@ -1,5 +1,3 @@
-import { ClientApi } from "@keyauthjs/core";
-async function main() {
-    const clientApi = new ClientApi();
-}
+import { ClientApi } from "@keyauthjs/client";
+async function main() {}
 main();

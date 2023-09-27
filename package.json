@@ -7,7 +7,7 @@
         "format": "prettier --write \"**/*.{ts,tsx,md}\""
     },
     "dependencies": {
-        "@keyauthjs/core": "workspace:*"
+        "@keyauthjs/client": "workspace:*"
     },
     "devDependencies": {
         "@types/node": "^20.5.6",
