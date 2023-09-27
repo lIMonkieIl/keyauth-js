@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@keyauthjs/client':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:packages/client
     devDependencies:
       '@types/node':

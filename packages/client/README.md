@@ -1,5 +1,9 @@
 # KeyAuthJS/Client
 
+## Description
+
+KeyAuthJS is a powerful API wrapper for KeyAuth, designed specifically for TypeScript. Whether you're developing a game server, a web application, or any software requiring secure user authentication and licensing, KeyAuthJS simplifies the integration process.
+
 ### Response storing
 
 The response from the api is on you to store how you see fit so this also means on most if not all functions sessionID is required the reason i did this is because this code could be run on the server side or client side
