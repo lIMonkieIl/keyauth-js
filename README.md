@@ -6,7 +6,7 @@ KeyAuthJS is a powerful API wrapper for KeyAuth, designed specifically for TypeS
 
 ## Packages
 
--   [Client](https://github.com/lIMonkieIl/keyauth-js/tree/main/packages/client)
+-   [@keyauthjs/client](https://github.com/lIMonkieIl/keyauth-js/tree/main/packages/client): includes all the client functions that can be found [here](https://keyauth.readme.io/reference/initialization)
 
 # License
 
