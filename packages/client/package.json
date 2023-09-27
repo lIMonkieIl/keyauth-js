@@ -1,8 +1,10 @@
 {
     "name": "@keyauthjs/client",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "readme": "https://github.com/lIMonkieIl/keyauth-js",
+    "repository": "https://github.com/lIMonkieIl/keyauth-js",
     "scripts": {
         "build": "tsc --build"
     },
