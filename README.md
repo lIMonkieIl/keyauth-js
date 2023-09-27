@@ -4,6 +4,10 @@
 
 KeyAuthJS is a powerful API wrapper for KeyAuth, designed specifically for TypeScript. Whether you're developing a game server, a web application, or any software requiring secure user authentication and licensing, KeyAuthJS simplifies the integration process.
 
+## Packages
+
+-   [Client](https://github.com/lIMonkieIl/keyauth-js/tree/main/packages/client)
+
 # License
 
 Elastic License 2.0 [HERE](https://github.com/lIMonkieIl/keyauth-npm/blob/dev/LICENSE)
