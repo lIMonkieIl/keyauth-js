@@ -65,8 +65,6 @@ Before you can call the KeyAuth API, you need to initialize the session.
 ```typescript
 // Usage Example 1
 
-import { ClientApi } from "@keyauthjs/core";
-
 let sessionsID: string;
 const init = await clientApi.init();
 if (init.success) {
@@ -77,7 +75,7 @@ if (init.success) {
 ```
 
 ```typescript
-// Usage Example 2
+// Usage Example 2 with event emitter
 
 let sessionsID: string;
 clientApi.on(
@@ -90,6 +88,42 @@ clientApi.on(
 
 await clientApi.init();
 // Then we can make more calls after with the sessionID stored
+```
+
+## Login
+
+Once you have called [init](#init) you can then log a user in
+
+```typescript
+// Usage example 1
+
+const login = await clientApi.login({
+    password: "",
+    username: "",
+    sessionId, // The session id received from init
+});
+if (login.success) {
+    console.log(`user: ${login.info.username} successfully logged in`);
+} else {
+    console.log(`failed logged in`);
+}
+```
+
+```typescript
+// Usage example 2 with event emitter
+clientApi.on("login", ({ message, success, time, info }) => {
+    if (login.success) {
+        console.log(`user: ${login.info.username} successfully logged in`);
+    } else {
+        console.log(`failed logged in`);
+    }
+});
+
+await clientApi.login({
+    password: "",
+    username: "",
+    sessionId, // The session id received from init
+});
 ```
 
 # License
