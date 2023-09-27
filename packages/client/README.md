@@ -24,7 +24,7 @@ When there are errors the proccess will not `proccess.exit()`, its on you to che
 You can install this package via npm:
 
 ```bash
-npm install @keyauthjs/core
+npm install @keyauthjs/client
 ```
 
 # Usage
@@ -36,9 +36,9 @@ Before you can use the KeyAuth API, you need to initialize the package with your
 ```typescript
 // Usage Example 1
 
-import { ClientApi } from "@keyauthjs/core";
+import { ClientApi } from "@keyauthjs/client";
 
-const clientApi = new ClientApi({
+const clientApi = new ClientApi(
     app: {
         // Your application details
         name: "exampleName", // Application Name
@@ -55,32 +55,7 @@ const clientApi = new ClientApi({
         baseUrl: "", // [Default: "https://keyauth.win/api/1.2/"] Set the base url used
         convertTimes: false, // [Default: false] This will convert all times on a user subscriptions to local time string,
     },
-});
-```
-
-```typescript
-// Usage Example 2
-
-import { ClientApi, ClientApiOptions } from "@keyauthjs/core";
-const clientOptions: ClientApiOptions = {
-    app: {
-        // Your application details
-        name: "npm", // Application Name
-        ownerid: "EdmsTKiuld", // Application OwnerID
-        ver: "1.0", // Application Version
-    },
-    options: {
-        // These are extra optional options
-        logger: {
-            // Logger options
-            active: false, // [Default: false] If the logger is active or not
-            level: "error", // [Default: error] The logger level. most of the time this should be set to error
-        },
-        baseUrl: "", // [Default: "https://keyauth.win/api/1.2/"] Set the base url used
-        convertTimes: false, // [Default: false] This will convert all times on a user subscriptions to local time string,
-    },
-};
-const clientApi = new ClientApi(clientOptions);
+);
 ```
 
 ## Init
