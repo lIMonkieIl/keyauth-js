@@ -1,26 +1,57 @@
 // Interfaces for various data structures
 
 import EventEmitter from "events";
+import { Logger } from "../misc";
 import TypedEmitter from "typed-emitter";
 
-// App information
+/**
+ * The application information can be found: https://keyauth.cc/app/
+ */
 export interface App {
+    /**
+     * The application name
+     */
     name: string;
+    /**
+     * The application version [defaults to 1.0]
+     */
     ver: string;
+    /**
+     * The applations owners owner ID
+     */
     ownerid: string;
     // secret:string
 }
 
-// Information about a session
+/**
+ * Information about a session
+ */
 export interface Session {
+    /**
+     * The current session ID
+     */
     id: string;
+    /**
+     * If the current session is a new session or not
+     */
     new: boolean;
+    /**
+     * If the current session is validated or not
+     */
     validated: boolean;
 }
 
-// Base response structure
+/**
+ * Base response structure
+ */
 export interface BaseResponse {
+    /**
+     * If the response was successful or not
+     */
     success: boolean;
+    /**
+     * The message from the response
+     */
     message: string;
     time: number;
     nonce?: string;
@@ -32,9 +63,11 @@ export interface InitResponse extends BaseResponse {
     newSession?: boolean;
 }
 
+export type METADATA = Record<string, any>;
+
 // Response after a login attempt
 export interface LoginResponse extends BaseResponse {
-    metaData?: any;
+    metaData?: METADATA;
     info?: Info;
 }
 
@@ -47,13 +80,6 @@ export interface ClientOptions {
     convertTimes?: boolean;
     baseUrl?: string;
     logger?: Omit<Logger, "tag" | "name">;
-}
-
-// Logger configuration
-export interface Logger {
-    active?: boolean;
-    level?: "error" | "warning" | "info" | "debug" | "dev";
-    name?: string;
 }
 
 // Parameters for initializing a session
@@ -97,13 +123,13 @@ export interface Info {
 
 // User information with optional metadata
 export interface User extends Info {
-    metaData?: any;
+    metaData?: METADATA;
 }
 
 // Response after a registration attempt
 export interface RegisterResponse extends BaseResponse {
     info?: Info;
-    metaData?: any;
+    metaData?: METADATA;
 }
 
 // Parameters for user registration
@@ -118,7 +144,6 @@ export interface RegisterParams {
 
 // Response after license verification
 export interface LicenseResponse extends BaseResponse {
-    metaData?: any;
     info?: Info;
 }
 
@@ -127,7 +152,6 @@ export interface LicenseParams {
     type: EVENT_TYPE.LICENSE;
     key: string;
     sessionid: string;
-    metaData?: any;
     email?: string;
 }
 
@@ -268,6 +292,36 @@ export class KeyauthEventEmitter extends (EventEmitter as new () => TypedEmitter
         super();
     }
 }
+export type EventType =
+    | "init"
+    | "login"
+    | "logout"
+    | "register"
+    | "license"
+    | "fetchStats"
+    | "ban"
+    | "changeUsername"
+    | "checkblacklist"
+    | "check"
+    | "file"
+    | "fetchOnline"
+    | "forgot"
+    | "chatget"
+    | "getvar"
+    | "log"
+    | "chatsend"
+    | "setvar"
+    | "upgrade"
+    | "webhook"
+    | "var"
+    // Added custom types
+    | "request"
+    | "response"
+    | "metadata"
+    | "error"
+    | "session"
+    | "instance"
+    | "ratelimit";
 
 // Enum defining various event types
 export enum EVENT_TYPE {
@@ -346,16 +400,16 @@ export type EventMap = {
 
     webhook: (data: WebhookResponse) => void;
 
-    var: (data: VarResponse) => void;
+    var: (data: GlobalVarResponse) => void;
 
     // Added custom types
-    request: (data: RequestResponse<EVENT_TYPE> & { type: EVENT_TYPE }) => void;
+    request: (data: RequestResponse<EventType> & { type: EventType }) => void;
 
-    response: (data: EventMap[EVENT_TYPE] & { type: EVENT_TYPE }) => void;
+    response: (data: EventMap[EventType] & { type: EventType }) => void;
 
     metadata: (
         data: BaseResponse & {
-            metaData: any;
+            metaData: METADATA;
         },
     ) => void;
 
@@ -363,7 +417,7 @@ export type EventMap = {
         success: false;
         message: string;
         errorCode: Error_Code;
-        type: EVENT_TYPE;
+        type: EventType;
     }) => void;
     instance: (data: BaseResponse) => void;
 
@@ -392,101 +446,12 @@ export enum ERROR_CODE {
     K_ICA = "invalidClientApi",
 }
 
-// };
-
-// Enum defining various variable operations
-export enum VAR {
-    SET = "set",
-    GLOBAL = "global",
-    GET = "get",
-}
-
-export type varTypeOption = "get" | "set" | "global";
-
-export interface VarResponse extends BaseResponse {
-    varData?: string;
-}
-
-export interface Var {
-    sessionId: string;
-    type: varTypeOption;
-    varId: string;
-    varData?: string;
-    skipResponse?: boolean;
-    skipError?: boolean;
-}
-
-// Mapping for variable operations
-export type VAR_MAP = {
-    // VAR handler for SET event
-    set: {
-        response: BaseResponse;
-        data: {
-            varId: string;
-            varData: string;
-            sessionId: string;
-        };
-    };
-    // VAR handler for GLOBAL event
-    global: {
-        response: BaseResponse;
-        data: {
-            varId: string;
-            sessionId: string;
-        };
-    };
-    // VAR handler for GET event
-    get: {
-        response: BaseResponse & { varData?: String };
-        data: {
-            varId: string;
-            sessionId: string;
-        };
-    };
-};
-
-// Parameters for setting a variable
-export interface SetVarParams {
-    type: EVENT_TYPE.SET_VAR;
-    var: string;
-    data: string;
-    sessionid: string;
-}
-export interface RequestResponse<EType extends EVENT_TYPE> {
+export interface RequestResponse<EType extends EventType> {
     request: {
         url: string;
         params: Record<string, any>;
     };
     response: EventMap[EType];
-}
-// Response after setting a user variable
-export interface SetUserVarResponse extends BaseResponse {
-    nonce: string;
-}
-
-// Parameters for getting a variable
-export interface GetVarParams {
-    type: EVENT_TYPE.GET_VAR;
-    var: string;
-    sessionid: string;
-}
-
-// Response after getting a user variable
-export interface GetUserVarResponse extends BaseResponse {
-    response: string;
-    nonce: string;
-}
-
-// Parameters for accessing a variable
-export interface VarParams {
-    type: EVENT_TYPE.VAR;
-    varid: string;
-    sessionid: string;
-}
-
-// Response after accessing a variable
-export interface VarResponse extends BaseResponse {
-    nonce: string;
 }
 
 // Parameters for a webhook request
@@ -535,7 +500,6 @@ export interface ChangeUsername {
 export interface Ban {
     reason: string;
     sessionId: string;
-    passedMeta: Record<string, any>;
 }
 
 // Parameters for a login request
@@ -543,7 +507,6 @@ export interface Login {
     username: string;
     password: string;
     hwid?: string;
-
     sessionId: string;
 }
 
@@ -559,14 +522,13 @@ export interface License {
 }
 
 // Parameters for user registration
-export interface Register<D extends Record<string, any>> {
+export interface Register {
     username: string;
     password: string;
     key: string;
     sessionId: string;
     email?: string;
-
-    metaData?: D;
+    metaData: METADATA;
 }
 
 // Parameters for fetching statistics
@@ -591,38 +553,31 @@ export interface Check {
     skipResponse: boolean;
 }
 
-// Parameters for setting a variable
-export interface setVar {
-    varId: string;
-    varData: string;
+export interface GetMetaData {
     sessionId: string;
+    skipResponse?: boolean;
+    skipError?: boolean;
 }
 
-// Enum defining various metadata operations
-export enum MetaDataType {
-    SET = "set",
-    GET = "get",
+export interface SetMetaData {
+    sessionId: string;
+    metaData: METADATA;
+    skipResponse?: boolean;
+    skipError?: boolean;
 }
 
-export type METADATA = "get" | "set";
-
-// Mapping for metadata operations
-export interface MetaDataResponse<D extends Record<string, any>>
-    extends BaseResponse {
-    metaData?: D;
+export interface GetMetaDataResponse extends BaseResponse {
+    metaData?: METADATA;
     nonce?: string;
 }
 
-export type MetaData<D extends Record<string, any>> = {
-    type: METADATA;
-    sessionId: string;
-    data?: D;
-    skipResponse?: boolean;
-    skipError?: boolean;
-};
+export interface SetMetaDataResponse extends BaseResponse {
+    nonce?: string;
+}
+
 // Params needed for making a request
 export interface MakeRequestParams extends Record<string, any> {
-    type: EVENT_TYPE;
+    type: EventType;
 }
 // Parameters for making a request
 export interface MakeRequest {
@@ -659,4 +614,143 @@ export interface GetChatParams {
     type: EVENT_TYPE.CHAT_GET;
     channel: string;
     sessionid: string;
+}
+
+// Parameters for setting a variable
+export interface SetUserVar {
+    varId: string;
+    varData: string;
+    sessionId: string;
+    skipResponse: boolean;
+    skipError: boolean;
+}
+
+// Response after setting a user variable
+export interface SetUserVarResponse extends BaseResponse {
+    nonce: string;
+}
+// Parameters for getting a variable
+export interface GetUserVar {
+    varId: string;
+    sessionId: string;
+    skipResponse: boolean;
+    skipError: boolean;
+}
+
+// Response after getting a user variable
+export interface GetUserVarResponse extends BaseResponse {
+    response: any;
+    nonce: string;
+}
+
+// Parameters for setting a variable
+export interface VarParams {
+    type: "var" | "getvar" | "setvar";
+    var: string;
+    data?: string;
+    sessionid: string;
+}
+
+export interface GlobalVar {
+    varId: string;
+    sessionId: string;
+    skipResponse: boolean;
+    skipError: boolean;
+}
+export interface GlobalVarResponse extends BaseResponse {
+    nonce: string;
+}
+
+export interface Var {
+    /**
+     * Mange a users variables
+     */
+    user: {
+        /**
+         * Get a users variable.
+         *
+         * @param {GetUserVar} data - The data needed to set the metadata.
+         * @param {GetUserVar['varId']} data.varId - The ID of the variable.
+         * @param {GetUserVar['sessionId']} data.sessionID - The session ID from the current session.
+         * @param {GetUserVar['skipError']} [data.skipError = false] - If to skip logging the error or not default false.
+         * @param {GetUserVar['skipResponse']} [data.skipResponse = false] - If to skip logging the response or not default false.
+         * @returns {Promise<GetUserVarResponse>} `response` - the response from getting the users variable.
+         */
+        get: (data: GetUserVar) => Promise<GetUserVarResponse>;
+        /**
+         * Set a users variable.
+         *
+         * @param {SetUserVar} data - The data needed to set the metadata.
+         * @param {SetUserVar['varId']} data.varId - The ID of the variable.
+         * @param {SetUserVar['varData']} data.varData - The variable data.
+         * @param {SetUserVar['sessionId']} data.sessionID - The session ID from the current session.
+         * @param {SetUserVar['skipError']} [data.skipError = false] - If to skip logging the error or not default false.
+         * @param {SetUserVar['skipResponse']} [data.skipResponse = false] - If to skip logging the response or not default false.
+         * @returns {Promise<SetUserVarResponse>} `response` - the response from setting the users variable.
+         */
+        set: (data: SetUserVar) => Promise<SetUserVarResponse>;
+    };
+    /**
+     * Get a global variable.
+     *
+     * @param {GlobalVar} data - The data needed to set the metadata.
+     * @param {GlobalVar['varId']} data.varId - The ID of the variable.
+     * @param {GlobalVar['sessionId']} data.sessionID - The session ID from the current session.
+     * @param {GlobalVar['skipError']} [data.skipError = false] - If to skip logging the error or not default false.
+     * @param {GlobalVar['skipResponse']} [data.skipResponse = false] - If to skip logging the response or not default false.
+     * @returns {Promise<GlobalVarResponse>} `response` - the response from getting a global variable.
+     */
+    get: (data: GlobalVar) => Promise<GlobalVarResponse>;
+}
+export interface MetaData {
+    /**
+     * Retrieve a users metadata from session ID.
+     *
+     * @param {GetMetaData} data - The data needed to get the metadata.
+     * @param {GetMetaData['sessionId']} data.sessionID - The session ID from the current session.
+     * @param {GetMetaData['skipError']} [data.skipError = false] - If to skip logging the error or not default false.
+     * @param {GetMetaData['skipResponse']} [data.skipResponse = false] - If to skip logging the response or not default false.
+     * @returns {Promise<GetMetaDataResponse>} `response` - the response from getting the users metadata.
+     */
+    get: (data: GetMetaData) => Promise<GetMetaDataResponse>;
+
+    /**
+     * Set a users metadata from session ID.
+     *
+     * @param {SetMetaData} data - The data needed to set the metadata.
+     * @param {SetMetaData['sessionId']} data.sessionID - The session ID from the current session.
+     * @param {SetMetaData['skipError']} [data.skipError = false] - If to skip logging the error or not default false.
+     * @param {SetMetaData['skipResponse']} [data.skipResponse = false] - If to skip logging the response or not default false.
+     * @returns {Promise<SetMetaDataResponse>} `response` - the response from getting the users metadata.
+     */
+    set: (data: SetMetaData) => Promise<SetMetaDataResponse>;
+}
+
+export interface Chat {
+    /**
+     * Get chat messages from a specific channel.
+     *
+     * @see https://keyauth.readme.io/reference/chat-channel
+     *
+     * @property {GetChat} `params` - The parameters for getting chat messages.
+     * @param {GetChat['channel']} `params.channel` - The channel from which to retrieve chat messages.
+     * @param {GetChat['sessionId']} `params.sessionId` - The session ID for the request.
+     * @returns {Promise<GetChatResponse>} `GetChatResponse` - A Promise that resolves with the response containing chat messages.
+     * @throws {Error} `Error` - Throws an error if API initialization is required.
+     */
+    get: (data: GetChat) => Promise<GetChatResponse>;
+    /**
+     * Send a chat message to a specific channel.
+     *
+     * @see https://keyauth.readme.io/reference/set-chat-channels
+     *
+     * @param {SendChat} `params` - The parameters for sending a chat message.
+     * @param {SendChat['channel']} `params.channel` - The channel where the message will be sent.
+     * @param {SendChat['message']} `params.message` - The message content to be sent.
+     * @param {SendChat['username']} `params.username` - The username of the sender.
+     * @param {SendChat['sessionId']} `params.sessionId` - The session ID of the sender.
+     * @returns {Promise<SendChatResponse>} `SendChatResponse` - A Promise that resolves with the response of the chat message sending.
+     * @throws {Error} `Error` - Throws an error if API initialization is required.
+     */
+    send: (data: SendChat) => Promise<SendChatResponse>;
 }

@@ -1,4 +1,4 @@
-# KeyAuthJS/Core
+# KeyAuthJS/Client
 
 ### Response storing
 

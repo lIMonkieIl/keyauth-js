@@ -3,8 +3,10 @@
     "compilerOptions": {
         "plugins": [{ "name": "types" }],
         "outDir": "./dist",
-        "baseUrl": "./",
-        "paths": {}
+        "declaration": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
     },
+    "include": ["src"],
     "exclude": ["node_modules", "./dist/**/*"]
 }
