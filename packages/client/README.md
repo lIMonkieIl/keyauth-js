@@ -68,13 +68,6 @@ Before you can call the KeyAuth API, you need to initialize the session.
 import { ClientApi } from "@keyauthjs/core";
 
 let sessionsID: string;
-const clientApi = new ClientApi({
-    app: {
-        name: "npm", // Application Name
-        ownerid: "EdmsTKiuld", // Application OwnerID
-        ver: "1.0", // Application Version
-    },
-});
 const init = await clientApi.init();
 if (init.success) {
     sessionsID = init.sessionid!;
@@ -87,14 +80,6 @@ if (init.success) {
 // Usage Example 2
 
 let sessionsID: string;
-const clientApi = new ClientApi({
-    app: {
-        name: "npm", // Application Name
-        ownerid: "EdmsTKiuld", // Application OwnerID
-        ver: "1.0", // Application Version
-    },
-});
-
 clientApi.on(
     "init",
     ({ message, success, time, newSession, nonce, sessionid }) => {
