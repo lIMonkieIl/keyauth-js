@@ -604,9 +604,6 @@ export default class Api {
                     time: responseTime,
                 };
             }
-            if (response.data.success === false) {
-                console.log("FAILED: ", response.data);
-            }
             if (params.type === EVENT_TYPE.LOG && response.status === 200) {
                 // Handle a successful log request
                 response.data = {
@@ -643,6 +640,60 @@ export default class Api {
                     time: responseTime,
                 },
             });
+            if (response.data.success === false) {
+                if (skipError) return;
+                if (
+                    params.sessionid === "" &&
+                    String(response.data.message).startsWith(
+                        "Session not found.",
+                    )
+                ) {
+                    this._eventEmitter.emit(EVENT_TYPE.ERROR, {
+                        type: params.type,
+                        success: false,
+                        message: response.data.message,
+                        errorCode: ERROR_CODE.K_NSID,
+                    });
+                } else if (
+                    String(response.data.message).startsWith(
+                        "Session not found.",
+                    )
+                ) {
+                    this._eventEmitter.emit(EVENT_TYPE.ERROR, {
+                        type: params.type,
+                        success: false,
+                        message: "The session was killed!",
+                        errorCode: ERROR_CODE.K_SK,
+                    });
+                } else if (
+                    String(response.data.message) === "Chat channel not found"
+                ) {
+                    this._eventEmitter.emit(EVENT_TYPE.ERROR, {
+                        type: params.type,
+                        success: false,
+                        message: "Chat channel not found",
+                        errorCode: ERROR_CODE.K_NCC,
+                    });
+                } else if (
+                    String(response.data.message).startsWith(
+                        "Keyauth API client",
+                    )
+                ) {
+                    this._eventEmitter.emit(EVENT_TYPE.ERROR, {
+                        type: params.type,
+                        success: false,
+                        message: response.data.message,
+                        errorCode: ERROR_CODE.K_ICA,
+                    });
+                } else {
+                    this._eventEmitter.emit(EVENT_TYPE.ERROR, {
+                        type: params.type,
+                        success: false,
+                        message: response.data.message,
+                        errorCode: ERROR_CODE.K_U,
+                    });
+                }
+            }
             return {
                 ...response.data,
                 time: responseTime,
@@ -651,9 +702,21 @@ export default class Api {
             if (error instanceof AxiosError) {
                 // Handle Axios HTTP request errors
                 this._logger.error(EVENT_TYPE.ERROR, error.message);
+                this._eventEmitter.emit(EVENT_TYPE.ERROR, {
+                    type: params.type,
+                    success: false,
+                    message: error.message,
+                    errorCode: ERROR_CODE.K_U,
+                });
             } else {
                 // Handle other types of errors
                 this._logger.error(EVENT_TYPE.ERROR, `${error as any}`);
+                this._eventEmitter.emit(EVENT_TYPE.ERROR, {
+                    type: params.type,
+                    success: false,
+                    message: (error as any).message,
+                    errorCode: ERROR_CODE.K_U,
+                });
             }
             // TODO Add more specific error handling if needed
         }
