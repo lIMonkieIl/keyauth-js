@@ -76,7 +76,7 @@ import {
     Download,
     DownloadResponse,
     DownloadParams,
-} from "types";
+} from "types/client";
 import Logger from "../utils/logger";
 import { BASE_URL, HEADERS } from "../utils/constants";
 import { convertTimestampsToLocalDates } from "../utils/helpers";

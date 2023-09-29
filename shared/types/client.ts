@@ -1,7 +1,7 @@
 // Interfaces for various data structures
 
 import EventEmitter from "events";
-import { Logger } from "../misc";
+import { Logger } from "./misc";
 import TypedEmitter from "typed-emitter";
 
 /**
