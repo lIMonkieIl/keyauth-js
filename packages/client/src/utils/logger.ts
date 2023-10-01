@@ -1,6 +1,12 @@
 // Import necessary modules and types
 import winston, { Logger, transports } from "winston";
-import { Logger as keyauthLogger } from "types";
+
+// Logger configuration
+export interface keyauthLogger {
+    active?: boolean;
+    level?: "error" | "warning" | "info" | "debug" | "dev";
+    name?: string;
+}
 
 /**
  * CustomLogger class for creating and configuring a custom logger based on Winston.

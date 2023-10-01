@@ -1,7 +1,7 @@
 // Interfaces for various data structures
 
 import EventEmitter from "events";
-import { Logger } from "./misc";
+import { keyauthLogger } from "../utils/logger";
 import TypedEmitter from "typed-emitter";
 
 /**
@@ -79,7 +79,7 @@ export interface ClientOptions {
     ratelimit?: { maxTokens: number; refillRate: number };
     convertTimes?: boolean;
     baseUrl?: string;
-    logger?: Omit<Logger, "tag" | "name">;
+    logger?: Omit<keyauthLogger, "tag" | "name">;
 }
 
 // Parameters for initializing a session

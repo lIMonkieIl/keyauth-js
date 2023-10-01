@@ -76,7 +76,7 @@ import {
     Download,
     DownloadResponse,
     DownloadParams,
-} from "types/client";
+} from "../types";
 import Logger from "../utils/logger";
 import { BASE_URL, HEADERS } from "../utils/constants";
 import { convertTimestampsToLocalDates } from "../utils/helpers";
@@ -151,7 +151,7 @@ export default class Api {
      * @param {ClientOptions['baseUrl']} `options.baseUrl` - To change the base url from https://keyauth.win/api/1.2/ to anything you like.
      * @param {ClientOptions['convertTimes']} `options.convertTimes` - To convert all times to readable times example like sub expiry.
      * @param {ClientOptions['logger']} `options.logger` - All the logger options.
-     * @param {ClientOptions['ratelimit']} `options.ratelimit` - overrider the global rate limit set on the package.
+     * @param {ClientOptions['ratelimit']} `options.ratelimit` - override the global rate limit set on the package.
      */
     constructor(app: App, options?: ClientOptions) {
         this.metaData = {

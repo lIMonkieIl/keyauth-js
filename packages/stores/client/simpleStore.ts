@@ -1,13 +1,13 @@
 // Import necessary modules and types
-import type { ClientApi } from "@keyauthjs/client";
 import type {
+    ClientApi,
     FetchOnlineUsersResponse,
     Session,
     User,
     BaseResponse,
     AppInfo,
-} from "types";
-import { EVENT_TYPE } from "types";
+} from "@keyauthjs/client";
+import { EVENT_TYPE } from "@keyauthjs/client";
 
 /**
  * Represents a store that manages various data related to the application.

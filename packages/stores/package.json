@@ -7,7 +7,6 @@
     "dependencies": {},
     "devDependencies": {
         "tsconfig": "workspace:*",
-        "types": "workspace:*",
         "typescript": "^5.2.2",
         "@keyauthjs/client": "workspace:*"
     }

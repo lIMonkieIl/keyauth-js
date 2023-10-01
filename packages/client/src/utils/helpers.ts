@@ -1,5 +1,5 @@
 // Import necessary modules and types
-import type { DownloadResponse, Subscription, Info } from "types";
+import type { DownloadResponse, Subscription, Info } from "../types";
 import { writeFile } from "fs";
 
 /**
