@@ -29,6 +29,10 @@ import {
     DeleteMultipleLicenseParams,
     DeleteUnusedLicenseResponse,
     DeleteUnusedLicenseParams,
+    DeleteUsedLicenseResponse,
+    DeleteUsedLicenseParams,
+    DeleteAllLicenseResponse,
+    DeleteAllLicenseParams,
 } from "../types";
 import { RateLimiter } from "../utils/rateLimiter";
 
@@ -349,6 +353,11 @@ export default class Api {
              */
             unused: async (): Promise<DeleteUnusedLicenseResponse> =>
                 this._DeleteUnusedLicense.call(this),
+
+            used: async (): Promise<DeleteUnusedLicenseResponse> =>
+                this._DeleteUsedLicense.call(this),
+            all: async (): Promise<DeleteAllLicenseResponse> =>
+                this._DeleteAllLicense.call(this),
         },
     };
     private async _createLicense(
@@ -557,7 +566,7 @@ export default class Api {
     private async _DeleteUnusedLicense(): Promise<DeleteUnusedLicenseResponse> {
         // Log the delete unused licenses process
         this._logger.debug(
-            EVENT_TYPE.DELETE_UNUSED,
+            EVENT_TYPE.DELETE_UNUSED_LICENSE,
             `Deleting unused licenses.`,
         );
 
@@ -568,7 +577,7 @@ export default class Api {
 
         // Log the delete unused licenses request
         this._logger.debug(
-            EVENT_TYPE.DELETE_UNUSED,
+            EVENT_TYPE.DELETE_UNUSED_LICENSE,
             `Sending delete unused licenses request.`,
         );
         // Send the delete unused licenses request and wait for the response
@@ -576,13 +585,80 @@ export default class Api {
             params: { ...deleteUnusedLicense },
         });
         // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.DELETE_UNUSED, {
+        this._eventEmitter.emit(EVENT_TYPE.DELETE_UNUSED_LICENSE, {
             ...response,
         });
         // Log that the delete unused licenses request is complete and return the response
         this._logger.debug(
-            EVENT_TYPE.DELETE_UNUSED,
+            EVENT_TYPE.DELETE_UNUSED_LICENSE,
             "Delete unused licenses complete. Returning response.",
+        );
+        // return the response
+        return response;
+    }
+    private async _DeleteUsedLicense(): Promise<DeleteUsedLicenseResponse> {
+        // Log the delete used licenses process
+        this._logger.debug(
+            EVENT_TYPE.DELETE_USED_LICENSE,
+            `Deleting unused licenses.`,
+        );
+
+        // Prepare the delete used licenses parameters
+        const deleteUsedLicense: DeleteUsedLicenseParams = {
+            type: "delused",
+        };
+
+        // Log the delete used licenses request
+        this._logger.debug(
+            EVENT_TYPE.DELETE_USED_LICENSE,
+            `Sending delete used licenses request.`,
+        );
+        // Send the delete used licenses request and wait for the response
+        const response = await this._makeRequest({
+            params: { ...deleteUsedLicense },
+        });
+        // log the response to the event emitter
+        this._eventEmitter.emit(EVENT_TYPE.DELETE_USED_LICENSE, {
+            ...response,
+        });
+        // Log that the delete used licenses request is complete and return the response
+        this._logger.debug(
+            EVENT_TYPE.DELETE_USED_LICENSE,
+            "Delete used licenses complete. Returning response.",
+        );
+        // return the response
+        return response;
+    }
+
+    private async _DeleteAllLicense(): Promise<DeleteAllLicenseResponse> {
+        // Log the delete all licenses process
+        this._logger.debug(
+            EVENT_TYPE.DELETE_ALL_LICENSE,
+            `Deleting all licenses.`,
+        );
+
+        // Prepare the delete all licenses parameters
+        const deleteAllLicense: DeleteAllLicenseParams = {
+            type: "delalllicenses",
+        };
+
+        // Log the delete all licenses request
+        this._logger.debug(
+            EVENT_TYPE.DELETE_ALL_LICENSE,
+            `Sending delete All licenses request.`,
+        );
+        // Send the delete All licenses request and wait for the response
+        const response = await this._makeRequest({
+            params: { ...deleteAllLicense },
+        });
+        // log the response to the event emitter
+        this._eventEmitter.emit(EVENT_TYPE.DELETE_ALL_LICENSE, {
+            ...response,
+        });
+        // Log that the delete all licenses request is complete and return the response
+        this._logger.debug(
+            EVENT_TYPE.DELETE_ALL_LICENSE,
+            "Delete all licenses complete. Returning response.",
         );
         // return the response
         return response;

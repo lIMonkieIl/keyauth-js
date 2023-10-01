@@ -4,9 +4,11 @@ import { BaseResponse, RequestResponse } from "./client";
 import {
     CreateLicenseResponse,
     CreateUserFromLicenseResponse,
+    DeleteAllLicenseResponse,
     DeleteLicenseResponse,
     DeleteMultipleLicenseResponse,
     DeleteUnusedLicenseResponse,
+    DeleteUsedLicenseResponse,
     VerifyLicenseResponse,
 } from "./license";
 
@@ -17,9 +19,11 @@ export type EventType =
     | "add"
     | "verify"
     | "activate"
+    | "delalllicenses"
     | "del"
     | "delmultiple"
     | "delunused"
+    | "delused"
     // Added custom types
     | "ratelimit"
     | "instance"
@@ -34,9 +38,11 @@ export enum EVENT_TYPE {
     CREATE_LICENSE = "add",
     CREATE_USER_FROM_LICENSE = "activate",
     DELETE_LICENSE = "del",
+    DELETE_ALL_LICENSE = "delalllicenses",
     DELETE_MULTIPLE_LICENSE = "delmultiple",
-    DELETE_UNUSED = "delunused",
+    DELETE_UNUSED_LICENSE = "delunused",
     VERIFY_LICENSE = "verify",
+    DELETE_USED_LICENSE = "delused",
     // Added custom types
     INSTANCE = "instance",
     REQUEST = "request",
@@ -71,4 +77,6 @@ export type EventMap = {
     del: (data: DeleteLicenseResponse) => void;
     delmultiple: (data: DeleteMultipleLicenseResponse) => void;
     delunused: (data: DeleteUnusedLicenseResponse) => void;
+    delused: (data: DeleteUsedLicenseResponse) => void;
+    delalllicenses: (data: DeleteAllLicenseResponse) => void;
 };

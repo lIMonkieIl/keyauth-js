@@ -124,6 +124,21 @@ export enum MASK {
     SPLIT = "******-******",
 }
 
+export interface Key {
+    id: number;
+    key: string;
+    note: string;
+    expires: string;
+    status: string;
+    level: number;
+    genBy: string;
+    genDate: string;
+    usedOn: string;
+    usedBy: string;
+    app: string;
+    banned: string;
+}
+
 /**
  * All the params needed to create license key(s)
  */
@@ -223,6 +238,17 @@ export interface DeleteUnusedLicenseResponse extends BaseResponse {}
 export interface DeleteUnusedLicenseParams {
     type: "delunused";
 }
+
+export interface DeleteUsedLicenseResponse extends BaseResponse {}
+
+export interface DeleteUsedLicenseParams {
+    type: "delused";
+}
+export interface DeleteAllLicenseResponse extends BaseResponse {}
+
+export interface DeleteAllLicenseParams {
+    type: "delalllicenses";
+}
 export interface License {
     create: (data?: CreateLicense) => Promise<CreateLicenseResponse>;
     verify: (data: VerifyLicense) => Promise<VerifyLicenseResponse>;
@@ -235,5 +261,7 @@ export interface License {
             data: DeleteMultipleLicense,
         ) => Promise<DeleteMultipleLicenseResponse>;
         unused: () => Promise<DeleteUnusedLicenseResponse>;
+        used: () => Promise<DeleteUsedLicenseResponse>;
+        all: () => Promise<DeleteAllLicenseResponse>;
     };
 }
