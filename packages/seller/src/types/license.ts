@@ -341,7 +341,7 @@ export interface GetLicenseInfoParams {
     key: string;
 }
 
-export interface License {
+export interface LicenseService {
     /**
      * Create a single license or multiple.
      *
