@@ -3,16 +3,10 @@ import Logger from "../utils/logger";
 import { BASE_URL, HEADERS } from "../utils/constants";
 import {
     CHARACTER,
-    CreateLicense,
     CreateLicenseParams,
     CreateLicenseResponse,
-    CreateUserFromLicense,
     CreateUserFromLicenseParams,
-    CreateUserFromLicenseResponse,
-    DeleteMultipleLicense,
-    DeleteLicense,
     DeleteLicenseParams,
-    DeleteLicenseResponse,
     EVENT_TYPE,
     EXPIRY,
     EventMap,
@@ -22,17 +16,20 @@ import {
     MakeRequest,
     Seller,
     SellerOptions,
-    VerifyLicense,
     VerifyLicenseParams,
-    VerifyLicenseResponse,
-    DeleteMultipleLicenseResponse,
     DeleteMultipleLicenseParams,
-    DeleteUnusedLicenseResponse,
     DeleteUnusedLicenseParams,
-    DeleteUsedLicenseResponse,
     DeleteUsedLicenseParams,
-    DeleteAllLicenseResponse,
     DeleteAllLicenseParams,
+    FetchAllLicenseParams,
+    Key,
+    AddTimeToUnusedLicenseParams,
+    BanLicenseParams,
+    UnbanLicenseParams,
+    RetrieveLicenseFromUserParams,
+    SetLicenseNoteParams,
+    GetLicenseInfoParams,
+    GetLicenseInfoResponse,
 } from "../types";
 import { RateLimiter } from "../utils/rateLimiter";
 
@@ -268,399 +265,581 @@ export default class Api {
     /**
      * Anything to do with the licenses can be found here
      */
-    license: License = {
-        /**
-         * Create a single license or multiple.
-         *
-         * @see https://keyauth.readme.io/reference/create-licenses
-         *
-         * @param {CreateLicense} `data` - All the params needed to create license key(s)
-         * @param {CreateLicense['amount']} [data.amount] - [Max `50`] [Default `1`] The amount of licenses to generate.
-         * @param {CreateLicense['character']} [data.character] - [Default `1`] This is to tell the api to generate the license as lowercase and uppercase or all lowercase or all uppercase.
-         * @param {CreateLicense['expiry']} [data.expiry] - [Default `1 Day`] The amount of time to apply to the generated license(s)
-         * @param {CreateLicense['level']} [data.level] - [Default `1`] The subscription level to apply to the generated license(s)
-         * @param {CreateLicense['mask']} [data.mask] - [Default `****-***-****`] The license mask to use when genarating the license example of default "Fg2F-6Sf-56Gd".
-         * @param {CreateLicense['owner']} [data.owner] - [Default `KeyAuthJS`] Can set to the username of one of your resellers or the program you are sending the request from
-         * @param {CreateLicense['note']} [data.note] - [Default `Generated via KeyAuthJS/Seller client`] The note you would like to assign to a license
-         * @returns {Promise<CreateLicenseResponse>} {@link CreateLicenseResponse} - The promise response from creating a license(s) can be of {@link SingleLicenseResponse} or {@link MultipleLicenseResponse}
-         */
-        create: async (data?: CreateLicense): Promise<CreateLicenseResponse> =>
-            this._createLicense.call(this, data),
-        /**
-         * Verify a license exists
-         *
-         * @see https://keyauth.readme.io/reference/verify-license-exists
-         *
-         * @param {VerifyLicense} `data` - All the params needed to verify a license key
-         * @param {VerifyLicense['license']} [data.license] - The license key that you would like to verify
-         * @returns {Promise<VerifyLicenseResponse>} {@link VerifyLicenseResponse} - The promise response from verify license
-         */
-        verify: async (data: VerifyLicense): Promise<VerifyLicenseResponse> =>
-            this._verifyLicense.call(this, data),
-        /**
-         * Create a user from a license key
-         *
-         * @see https://keyauth.readme.io/reference/use-license-to-create-a-user
-         *
-         * @param {CreateUserFromLicense} `data` - All the params needed to create a user from license key
-         * @param {CreateUserFromLicense['license']} [data.license] - The license key that you would like to suer to create the user
-         * @param {CreateUserFromLicense['username']} [data.username] - The username of the new user you would like to create
-         * @param {CreateUserFromLicense['password']} [data.password] - The password of the new user you would like tos create
-         * @returns {Promise<CreateUserFromLicenseResponse>} {@link CreateUserFromLicenseResponse} - The promise response from create user from license
-         */
-        createUser: async (
-            data: CreateUserFromLicense,
-        ): Promise<CreateUserFromLicenseResponse> =>
-            this._createUserFromLicense.call(this, data),
-        /**
-         * Here you will find anything to do with license deleting
-         */
-        delete: {
-            /**
-             * Delete a single license key
-             *
-             * @see https://keyauth.readme.io/reference/delete-license
-             *
-             * @param {DeleteLicense} `data` - All the params needed to delete a license key
-             * @param {DeleteLicense['license']} [data.license] - The license key that you would like to delete
-             * @param {DeleteLicense['deleteUserToo']} [data.deleteUserToo] - [Default `false`] If to delete the user attached to that key also
-             * @returns {Promise<DeleteLicenseResponse>} {@link DeleteLicenseResponse} - The promise response from delete license
-             */
-            single: async (
-                data: DeleteLicense,
-            ): Promise<DeleteLicenseResponse> =>
-                this._DeleteLicense.call(this, data),
-            /**
-             * Delete multiple license keys
-             *
-             * @see https://keyauth.readme.io/reference/delete-multiple-licenses
-             *
-             * @param {DeleteMultipleLicense} `data` - All the params needed to delete multiple license keys
-             * @param {DeleteMultipleLicense['licenses']} [data.licenses] - All the license keys that you would like to delete
-             * @param {DeleteMultipleLicense['deleteUserToo']} [data.deleteUserToo] - [Default `false`] If to delete the user attached to the keys also
-             * @returns {Promise<DeleteMultipleLicenseResponse>} {@link DeleteMultipleLicenseResponse} - The promise response from delete multiple licenses
-             */
-            multiple: async (
-                data: DeleteMultipleLicense,
-            ): Promise<DeleteMultipleLicenseResponse> =>
-                this._DeleteMultipleLicense.call(this, data),
-            /**
-             * Delete all unused license keys
-             *
-             * @see https://keyauth.readme.io/reference/delete-unused-licenses
-             *
-             * @returns {Promise<DeleteUnusedLicenseResponse>} {@link DeleteUnusedLicenseResponse} - The promise response from delete unused licenses
-             */
-            unused: async (): Promise<DeleteUnusedLicenseResponse> =>
-                this._DeleteUnusedLicense.call(this),
+    public license: License = {
+        create: async (data) => {
+            // Log the create license process
+            this._logger.debug(EVENT_TYPE.CREATE_LICENSE, `Creating license.`);
 
-            used: async (): Promise<DeleteUnusedLicenseResponse> =>
-                this._DeleteUsedLicense.call(this),
-            all: async (): Promise<DeleteAllLicenseResponse> =>
-                this._DeleteAllLicense.call(this),
+            // Prepare the create license parameters
+            const createParams: CreateLicenseParams = {
+                type: "add",
+                format: "JSON",
+                expiry: data?.expiry ?? EXPIRY.ONE_DAY,
+                mask: data?.mask ?? MASK.DEFAULT,
+                level: data?.level ? data.level.toString() : "1",
+                amount: data?.amount ? data.amount.toString() : "1",
+                owner: data?.owner ?? "KeyAuthJS",
+                character: data?.character ?? CHARACTER.RANDOM,
+                note: data?.note ?? "Generated via KeyAuthJS/Seller client",
+            };
+
+            // Log the create license request
+            this._logger.debug(
+                EVENT_TYPE.CREATE_LICENSE,
+                `Sending create license request.`,
+            );
+            // Send the create license request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...createParams },
+            });
+            const buildResponse: CreateLicenseResponse = {
+                message: response.message,
+                success: response.success,
+                keys: response.keys ?? [response.key],
+                time: response.time,
+            };
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.CREATE_LICENSE, {
+                ...buildResponse,
+            });
+            // Log that the create license request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.CREATE_LICENSE,
+                "create license complete. Returning response.",
+            );
+            // return the response
+            return buildResponse;
+        },
+        verify: async ({ license }) => {
+            // Log the verify license process
+            this._logger.debug(
+                EVENT_TYPE.VERIFY_LICENSE,
+                `Verifying a license exists.`,
+            );
+
+            // Prepare the verify license parameters
+            const verifyLicense: VerifyLicenseParams = {
+                type: "verify",
+                key: license,
+            };
+
+            // Log the verify license request
+            this._logger.debug(
+                EVENT_TYPE.VERIFY_LICENSE,
+                `Sending verify license request.`,
+            );
+            // Send the verify license request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...verifyLicense },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.VERIFY_LICENSE, {
+                ...response,
+            });
+            // Log that the verify license request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.VERIFY_LICENSE,
+                "Verify license complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+
+        createUser: async ({ license, password, username }) => {
+            // Log the create user from license process
+            this._logger.debug(
+                EVENT_TYPE.CREATE_USER_FROM_LICENSE,
+                `Creating user from license.`,
+            );
+
+            // Prepare the create user from license parameters
+            const createUserFromLicense: CreateUserFromLicenseParams = {
+                type: "activate",
+                key: license,
+                pass: password,
+                user: username,
+            };
+
+            // Log the create user from license request
+            this._logger.debug(
+                EVENT_TYPE.CREATE_USER_FROM_LICENSE,
+                `Sending create user from license request.`,
+            );
+            // Send the create user from license request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...createUserFromLicense },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.CREATE_USER_FROM_LICENSE, {
+                ...response,
+            });
+            // Log that the create user from license request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.CREATE_USER_FROM_LICENSE,
+                "Create user from license complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+        delete: {
+            single: async ({ license, deleteUserToo = false }) => {
+                // Log the delete license process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_LICENSE,
+                    `Deleting a license${
+                        deleteUserToo ? " and deleting the user to" : ""
+                    }.`,
+                );
+
+                // Prepare the delete license parameters
+                const deleteLicense: DeleteLicenseParams = {
+                    type: "del",
+                    key: license,
+                    userToo: deleteUserToo ? "1" : "0",
+                };
+
+                // Log the delete license request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_LICENSE,
+                    `Sending delete license request.`,
+                );
+                // Send the delete license request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteLicense },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_LICENSE, {
+                    ...response,
+                });
+                // Log that the delete license request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_LICENSE,
+                    "Delete license complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            multiple: async ({ licenses, deleteUserToo = false }) => {
+                // Log the delete multiple license process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_MULTIPLE_LICENSE,
+                    `Deleting multiple licenses${
+                        deleteUserToo ? " and deleting the users to" : ""
+                    }.`,
+                );
+
+                // Prepare the delete multiple license parameters
+                const deleteMultipleLicense: DeleteMultipleLicenseParams = {
+                    type: "delmultiple",
+                    key: licenses.join(", "),
+                    userToo: deleteUserToo ? "1" : "0",
+                };
+
+                // Log the delete multiple licenses request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_MULTIPLE_LICENSE,
+                    `Sending delete multiple licenses request.`,
+                );
+                // Send the delete multiple licenses request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteMultipleLicense },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_MULTIPLE_LICENSE, {
+                    ...response,
+                });
+                // Log that the delete multiple licenses request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_MULTIPLE_LICENSE,
+                    "Delete multiple licenses complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+
+            unused: async () => {
+                // Log the delete unused licenses process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_UNUSED_LICENSE,
+                    `Deleting unused licenses.`,
+                );
+
+                // Prepare the delete unused licenses parameters
+                const deleteUnusedLicense: DeleteUnusedLicenseParams = {
+                    type: "delunused",
+                };
+
+                // Log the delete unused licenses request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_UNUSED_LICENSE,
+                    `Sending delete unused licenses request.`,
+                );
+                // Send the delete unused licenses request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteUnusedLicense },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_UNUSED_LICENSE, {
+                    ...response,
+                });
+                // Log that the delete unused licenses request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_UNUSED_LICENSE,
+                    "Delete unused licenses complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+
+            used: async () => {
+                // Log the delete used licenses process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_USED_LICENSE,
+                    `Deleting unused licenses.`,
+                );
+
+                // Prepare the delete used licenses parameters
+                const deleteUsedLicense: DeleteUsedLicenseParams = {
+                    type: "delused",
+                };
+
+                // Log the delete used licenses request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_USED_LICENSE,
+                    `Sending delete used licenses request.`,
+                );
+                // Send the delete used licenses request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteUsedLicense },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_USED_LICENSE, {
+                    ...response,
+                });
+                // Log that the delete used licenses request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_USED_LICENSE,
+                    "Delete used licenses complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            all: async () => {
+                // Log the delete all licenses process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_ALL_LICENSE,
+                    `Deleting all licenses.`,
+                );
+
+                // Prepare the delete all licenses parameters
+                const deleteAllLicense: DeleteAllLicenseParams = {
+                    type: "delalllicenses",
+                };
+
+                // Log the delete all licenses request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_ALL_LICENSE,
+                    `Sending delete All licenses request.`,
+                );
+                // Send the delete All licenses request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteAllLicense },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_ALL_LICENSE, {
+                    ...response,
+                });
+                // Log that the delete all licenses request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_ALL_LICENSE,
+                    "Delete all licenses complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+        },
+
+        fetchAll: async () => {
+            // Log the fetch all license keys process
+            this._logger.debug(
+                EVENT_TYPE.FETCH_ALL_LICENSE,
+                `Fetching all license keys.`,
+            );
+
+            // Prepare the fetch all license keys parameters
+            const fetchAllLicense: FetchAllLicenseParams = {
+                type: "fetchallkeys",
+            };
+
+            // Log the fetch all license keys request
+            this._logger.debug(
+                EVENT_TYPE.FETCH_ALL_LICENSE,
+                `Sending fetch all license keys request.`,
+            );
+            // Send the fetch all license keys request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...fetchAllLicense },
+            });
+
+            // Check to see if the object has a value called keys if so transform the data
+            if ("keys" in response) {
+                const keys: Key[] = [];
+                response.keys.forEach((key: any) => {
+                    keys.push({
+                        id: key.id,
+                        key: key.key,
+                        note: key.note,
+                        expires: key.expires,
+                        status: key.status,
+                        level: key.level,
+                        genBy: key.genby,
+                        genDate: key.gendate,
+                        usedOn: key.usedon,
+                        usedBy: key.usedby,
+                        app: key.app,
+                        banned: key.banned,
+                    });
+                });
+                response.keys = keys;
+            }
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.FETCH_ALL_LICENSE, {
+                ...response,
+            });
+            // Log that the fetch all license keys request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.FETCH_ALL_LICENSE,
+                "Fetching all license keys complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+
+        addTime: async ({ time }) => {
+            // Log the add time to all unused license keys process
+            this._logger.debug(
+                EVENT_TYPE.ADD_TIME_TO_UNUSED,
+                `Adding time to all unused license keys.`,
+            );
+
+            // Prepare the add time to license keys parameters
+            const addTimeToUnused: AddTimeToUnusedLicenseParams = {
+                type: "addtime",
+                time,
+            };
+
+            // Log the add time to all unused license keys request
+            this._logger.debug(
+                EVENT_TYPE.ADD_TIME_TO_UNUSED,
+                `Sending add time to all unused license keys request.`,
+            );
+            // Send the add time to all unused license keys request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...addTimeToUnused },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.ADD_TIME_TO_UNUSED, {
+                ...response,
+            });
+            // Log that the add time to all unused license keys request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.ADD_TIME_TO_UNUSED,
+                "Adding time to all unused license keys complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+        ban: async ({ license, reason, banUserToo = false }) => {
+            // Log the ban license process
+            this._logger.debug(
+                EVENT_TYPE.BAN_LICENSE,
+                `Banning a license key.`,
+            );
+
+            // Prepare ban license key parameters
+            const banLicense: BanLicenseParams = {
+                type: "ban",
+                key: license,
+                reason,
+                userToo: banUserToo ? "1" : "0",
+            };
+
+            // Log the ban license request
+            this._logger.debug(
+                EVENT_TYPE.BAN_LICENSE,
+                `Sending ban license request.`,
+            );
+            // Send the ban license request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...banLicense },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.BAN_LICENSE, {
+                ...response,
+            });
+            // Log that the ban license request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.BAN_LICENSE,
+                "Banning license complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+
+        unban: async ({ license }) => {
+            // Log the unban license process
+            this._logger.debug(
+                EVENT_TYPE.UNBAN_LICENSE,
+                `Unbanning a license key.`,
+            );
+
+            // Prepare unban license key parameters
+            const unbanLicense: UnbanLicenseParams = {
+                type: "unban",
+                key: license,
+            };
+
+            // Log the unban license request
+            this._logger.debug(
+                EVENT_TYPE.UNBAN_LICENSE,
+                `Sending unban license request.`,
+            );
+            // Send the unban license request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...unbanLicense },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.UNBAN_LICENSE, {
+                ...response,
+            });
+            // Log that the unban license request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.UNBAN_LICENSE,
+                "Unbanning license complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+        retrieve: async ({ username }) => {
+            // Log the retrieve a license from a user process
+            this._logger.debug(
+                EVENT_TYPE.GET_LICENSE,
+                `Retrieving a license from a user.`,
+            );
+
+            // Prepare the retrieve a license from a user parameters
+            const retrieveLicense: RetrieveLicenseFromUserParams = {
+                type: "getkey",
+                user: username,
+            };
+
+            // Log the retrieve license from user request
+            this._logger.debug(
+                EVENT_TYPE.GET_LICENSE,
+                `Sending retrieve license from user request.`,
+            );
+            // Send the retrieve license from user request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...retrieveLicense },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.GET_LICENSE, {
+                ...response,
+            });
+            // Log that the retrieve license from user request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.GET_LICENSE,
+                "Retrieve license from user complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+        setNote: async ({ license, note }) => {
+            // Log the set note for license process
+            this._logger.debug(
+                EVENT_TYPE.SET_LICENSE_NOTE,
+                `Setting the note for a license key.`,
+            );
+
+            // Prepare the set note for license parameters
+            const setLicenseNote: SetLicenseNoteParams = {
+                type: "setnote",
+                key: license,
+                note,
+            };
+
+            // Log the set note for license
+            this._logger.debug(
+                EVENT_TYPE.SET_LICENSE_NOTE,
+                `Sending set license note request.`,
+            );
+            // Send the set note for license request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...setLicenseNote },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.SET_LICENSE_NOTE, {
+                ...response,
+            });
+            // Log that the set license note request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.SET_LICENSE_NOTE,
+                "Setting license note complete. Returning response.",
+            );
+            // return the response
+            return response;
+        },
+        getInfo: async ({ license }) => {
+            // Log the get license info process
+            this._logger.debug(
+                EVENT_TYPE.GET_LICENSE_INFO,
+                `Getting info from license key.`,
+            );
+
+            // Prepare the get license info parameters
+            const licenseInfo: GetLicenseInfoParams = {
+                type: "info",
+                key: license,
+            };
+
+            // Log the get license info
+            this._logger.debug(
+                EVENT_TYPE.GET_LICENSE_INFO,
+                `Sending get license info request.`,
+            );
+            // Send the get license info request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...licenseInfo },
+            });
+
+            const buildResponse: GetLicenseInfoResponse = {
+                success: response.success,
+                message:
+                    response.success === true
+                        ? "Successfully retrieved license information"
+                        : response.message,
+                duration: response.duration,
+                hwid: response.hwid,
+                note: response.note,
+                status: response.status,
+                level: response.level,
+                createdBy: response.createdby,
+                usedBy: response.usedby,
+                usedOn: response.usedon,
+                creationDate: response.creationdate,
+                time: response.time,
+            };
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.GET_LICENSE_INFO, {
+                ...buildResponse,
+            });
+            // Log that the get license info request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.GET_LICENSE_INFO,
+                "Getting license info complete. Returning response.",
+            );
+            // return the response
+            return buildResponse;
         },
     };
-    private async _createLicense(
-        data?: CreateLicense,
-    ): Promise<CreateLicenseResponse> {
-        // Log the create license process
-        this._logger.debug(EVENT_TYPE.CREATE_LICENSE, `Creating license.`);
-
-        // Prepare the create license parameters
-        const createParams: CreateLicenseParams = {
-            type: "add",
-            format: "JSON",
-            expiry: data?.expiry ?? EXPIRY.ONE_DAY,
-            mask: data?.mask ?? MASK.DEFAULT,
-            level: data?.level ? data.level.toString() : "1",
-            amount: data?.amount ? data.amount.toString() : "1",
-            owner: data?.owner ?? "KeyAuthJS",
-            character: data?.character ?? CHARACTER.RANDOM,
-            note: data?.note ?? "Generated via KeyAuthJS/Seller client",
-        };
-
-        // Log the create license request
-        this._logger.debug(
-            EVENT_TYPE.CREATE_LICENSE,
-            `Sending create license request.`,
-        );
-        // Send the create license request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...createParams },
-        });
-        const buildResponse: CreateLicenseResponse = {
-            message: response.message,
-            success: response.success,
-            keys: response.keys ?? [response.key],
-            time: response.time,
-        };
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.CREATE_LICENSE, {
-            ...buildResponse,
-        });
-        // Log that the create license request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.CREATE_LICENSE,
-            "create license complete. Returning response.",
-        );
-        // return the response
-        return buildResponse;
-    }
-    private async _verifyLicense({
-        license,
-    }: VerifyLicense): Promise<VerifyLicenseResponse> {
-        // Log the verify license process
-        this._logger.debug(
-            EVENT_TYPE.VERIFY_LICENSE,
-            `Verifying a license exists.`,
-        );
-
-        // Prepare the verify license parameters
-        const verifyLicense: VerifyLicenseParams = {
-            type: "verify",
-            key: license,
-        };
-
-        // Log the verify license request
-        this._logger.debug(
-            EVENT_TYPE.VERIFY_LICENSE,
-            `Sending verify license request.`,
-        );
-        // Send the verify license request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...verifyLicense },
-        });
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.VERIFY_LICENSE, {
-            ...response,
-        });
-        // Log that the verify license request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.VERIFY_LICENSE,
-            "Verify license complete. Returning response.",
-        );
-        // return the response
-        return response;
-    }
-    private async _createUserFromLicense({
-        license,
-        password,
-        username,
-    }: CreateUserFromLicense): Promise<CreateUserFromLicenseResponse> {
-        // Log the create user from license process
-        this._logger.debug(
-            EVENT_TYPE.CREATE_USER_FROM_LICENSE,
-            `Creating user from license.`,
-        );
-
-        // Prepare the create user from license parameters
-        const createUserFromLicense: CreateUserFromLicenseParams = {
-            type: "activate",
-            key: license,
-            pass: password,
-            user: username,
-        };
-
-        // Log the create user from license request
-        this._logger.debug(
-            EVENT_TYPE.CREATE_USER_FROM_LICENSE,
-            `Sending create user from license request.`,
-        );
-        // Send the create user from license request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...createUserFromLicense },
-        });
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.CREATE_USER_FROM_LICENSE, {
-            ...response,
-        });
-        // Log that the create user from license request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.CREATE_USER_FROM_LICENSE,
-            "Create user from license complete. Returning response.",
-        );
-        // return the response
-        return response;
-    }
-    private async _DeleteLicense({
-        license,
-        deleteUserToo = false,
-    }: DeleteLicense): Promise<DeleteLicenseResponse> {
-        // Log the delete license process
-        this._logger.debug(
-            EVENT_TYPE.DELETE_LICENSE,
-            `Deleting a license${
-                deleteUserToo ? " and deleting the user to" : ""
-            }.`,
-        );
-
-        // Prepare the delete license parameters
-        const deleteLicense: DeleteLicenseParams = {
-            type: "del",
-            key: license,
-            userToo: deleteUserToo ? "1" : "0",
-        };
-
-        // Log the delete license request
-        this._logger.debug(
-            EVENT_TYPE.DELETE_LICENSE,
-            `Sending delete license request.`,
-        );
-        // Send the delete license request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...deleteLicense },
-        });
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.DELETE_LICENSE, {
-            ...response,
-        });
-        // Log that the delete license request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.DELETE_LICENSE,
-            "Delete license complete. Returning response.",
-        );
-        // return the response
-        return response;
-    }
-    private async _DeleteMultipleLicense({
-        licenses,
-        deleteUserToo = false,
-    }: DeleteMultipleLicense): Promise<DeleteMultipleLicenseResponse> {
-        // Log the delete multiple license process
-        this._logger.debug(
-            EVENT_TYPE.DELETE_MULTIPLE_LICENSE,
-            `Deleting multiple licenses${
-                deleteUserToo ? " and deleting the users to" : ""
-            }.`,
-        );
-
-        // Prepare the delete multiple license parameters
-        const deleteMultipleLicense: DeleteMultipleLicenseParams = {
-            type: "delmultiple",
-            key: licenses.join(", "),
-            userToo: deleteUserToo ? "1" : "0",
-        };
-
-        // Log the delete multiple licenses request
-        this._logger.debug(
-            EVENT_TYPE.DELETE_MULTIPLE_LICENSE,
-            `Sending delete multiple licenses request.`,
-        );
-        // Send the delete multiple licenses request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...deleteMultipleLicense },
-        });
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.DELETE_MULTIPLE_LICENSE, {
-            ...response,
-        });
-        // Log that the delete multiple licenses request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.DELETE_MULTIPLE_LICENSE,
-            "Delete multiple licenses complete. Returning response.",
-        );
-        // return the response
-        return response;
-    }
-
-    private async _DeleteUnusedLicense(): Promise<DeleteUnusedLicenseResponse> {
-        // Log the delete unused licenses process
-        this._logger.debug(
-            EVENT_TYPE.DELETE_UNUSED_LICENSE,
-            `Deleting unused licenses.`,
-        );
-
-        // Prepare the delete unused licenses parameters
-        const deleteUnusedLicense: DeleteUnusedLicenseParams = {
-            type: "delunused",
-        };
-
-        // Log the delete unused licenses request
-        this._logger.debug(
-            EVENT_TYPE.DELETE_UNUSED_LICENSE,
-            `Sending delete unused licenses request.`,
-        );
-        // Send the delete unused licenses request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...deleteUnusedLicense },
-        });
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.DELETE_UNUSED_LICENSE, {
-            ...response,
-        });
-        // Log that the delete unused licenses request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.DELETE_UNUSED_LICENSE,
-            "Delete unused licenses complete. Returning response.",
-        );
-        // return the response
-        return response;
-    }
-    private async _DeleteUsedLicense(): Promise<DeleteUsedLicenseResponse> {
-        // Log the delete used licenses process
-        this._logger.debug(
-            EVENT_TYPE.DELETE_USED_LICENSE,
-            `Deleting unused licenses.`,
-        );
-
-        // Prepare the delete used licenses parameters
-        const deleteUsedLicense: DeleteUsedLicenseParams = {
-            type: "delused",
-        };
-
-        // Log the delete used licenses request
-        this._logger.debug(
-            EVENT_TYPE.DELETE_USED_LICENSE,
-            `Sending delete used licenses request.`,
-        );
-        // Send the delete used licenses request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...deleteUsedLicense },
-        });
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.DELETE_USED_LICENSE, {
-            ...response,
-        });
-        // Log that the delete used licenses request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.DELETE_USED_LICENSE,
-            "Delete used licenses complete. Returning response.",
-        );
-        // return the response
-        return response;
-    }
-
-    private async _DeleteAllLicense(): Promise<DeleteAllLicenseResponse> {
-        // Log the delete all licenses process
-        this._logger.debug(
-            EVENT_TYPE.DELETE_ALL_LICENSE,
-            `Deleting all licenses.`,
-        );
-
-        // Prepare the delete all licenses parameters
-        const deleteAllLicense: DeleteAllLicenseParams = {
-            type: "delalllicenses",
-        };
-
-        // Log the delete all licenses request
-        this._logger.debug(
-            EVENT_TYPE.DELETE_ALL_LICENSE,
-            `Sending delete All licenses request.`,
-        );
-        // Send the delete All licenses request and wait for the response
-        const response = await this._makeRequest({
-            params: { ...deleteAllLicense },
-        });
-        // log the response to the event emitter
-        this._eventEmitter.emit(EVENT_TYPE.DELETE_ALL_LICENSE, {
-            ...response,
-        });
-        // Log that the delete all licenses request is complete and return the response
-        this._logger.debug(
-            EVENT_TYPE.DELETE_ALL_LICENSE,
-            "Delete all licenses complete. Returning response.",
-        );
-        // return the response
-        return response;
-    }
 }

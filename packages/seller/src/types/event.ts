@@ -2,6 +2,8 @@ import EventEmitter from "events";
 import TypedEmitter from "typed-emitter";
 import { BaseResponse, RequestResponse } from "./client";
 import {
+    AddTimeToUnusedLicenseResponse,
+    BanLicenseResponse,
     CreateLicenseResponse,
     CreateUserFromLicenseResponse,
     DeleteAllLicenseResponse,
@@ -9,6 +11,11 @@ import {
     DeleteMultipleLicenseResponse,
     DeleteUnusedLicenseResponse,
     DeleteUsedLicenseResponse,
+    FetchAllLicenseResponse,
+    GetLicenseInfoResponse,
+    RetrieveLicenseFromUserResponse,
+    SetLicenseNoteResponse,
+    UnbanLicenseResponse,
     VerifyLicenseResponse,
 } from "./license";
 
@@ -24,6 +31,13 @@ export type EventType =
     | "delmultiple"
     | "delunused"
     | "delused"
+    | "fetchallkeys"
+    | "addtime"
+    | "ban"
+    | "unban"
+    | "getkey"
+    | "setnote"
+    | "info"
     // Added custom types
     | "ratelimit"
     | "instance"
@@ -43,6 +57,13 @@ export enum EVENT_TYPE {
     DELETE_UNUSED_LICENSE = "delunused",
     VERIFY_LICENSE = "verify",
     DELETE_USED_LICENSE = "delused",
+    FETCH_ALL_LICENSE = "fetchallkeys",
+    ADD_TIME_TO_UNUSED = "addtime",
+    BAN_LICENSE = "ban",
+    UNBAN_LICENSE = "unban",
+    GET_LICENSE = "getkey",
+    SET_LICENSE_NOTE = "setnote",
+    GET_LICENSE_INFO = "info",
     // Added custom types
     INSTANCE = "instance",
     REQUEST = "request",
@@ -79,4 +100,11 @@ export type EventMap = {
     delunused: (data: DeleteUnusedLicenseResponse) => void;
     delused: (data: DeleteUsedLicenseResponse) => void;
     delalllicenses: (data: DeleteAllLicenseResponse) => void;
+    fetchallkeys: (data: FetchAllLicenseResponse) => void;
+    addtime: (data: AddTimeToUnusedLicenseResponse) => void;
+    ban: (data: BanLicenseResponse) => void;
+    unban: (data: UnbanLicenseResponse) => void;
+    getkey: (data: RetrieveLicenseFromUserResponse) => void;
+    setnote: (data: SetLicenseNoteResponse) => void;
+    info: (data: GetLicenseInfoResponse) => void;
 };
