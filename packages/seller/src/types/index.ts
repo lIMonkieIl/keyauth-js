@@ -2,3 +2,4 @@
 export * from "./client";
 export * from "./event";
 export * from "./license";
+export * from "./user";

@@ -11,7 +11,6 @@ import {
     EXPIRY,
     EventMap,
     KeyauthSellerEventEmitter,
-    License,
     MASK,
     MakeRequest,
     Seller,
@@ -30,6 +29,23 @@ import {
     SetLicenseNoteParams,
     GetLicenseInfoParams,
     GetLicenseInfoResponse,
+    LicenseService,
+    CreateUserParams,
+    DeleteExistingUserParams,
+    UserService,
+    DeleteExpiredUserParams,
+    ResetUserHWIDParams,
+    SetUsersVarParams,
+    GetUsersVarParams,
+    ResetAllUsersHWIDParams,
+    AddHWIDToUserParams,
+    FetchAllUsersVarsParams,
+    DeleteUsersVarParams,
+    DeleteUsersVarWithNameParams,
+    DeleteUsersSubParams,
+    SubtractUsersSubParams,
+    CountSubscriptionsParams,
+    ExtendUsersSubParams,
 } from "../types";
 import { RateLimiter } from "../utils/rateLimiter";
 
@@ -265,7 +281,7 @@ export default class Api {
     /**
      * Anything to do with the licenses can be found here
      */
-    public license: License = {
+    public license: LicenseService = {
         create: async (data) => {
             // Log the create license process
             this._logger.debug(EVENT_TYPE.CREATE_LICENSE, `Creating license.`);
@@ -840,6 +856,551 @@ export default class Api {
             );
             // return the response
             return buildResponse;
+        },
+    };
+    /**
+     * Anything to do with the users can be found here
+     */
+    public user: UserService = {
+        delete: {
+            existing: async ({ username }) => {
+                // Log the delete user process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_EXISTING_USER,
+                    `Deleteing a user.`,
+                );
+
+                // Prepare delete user parameters
+                const deleteUser: DeleteExistingUserParams = {
+                    type: "deluser",
+                    user: username,
+                };
+
+                // Log the delete user request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_EXISTING_USER,
+                    `Sending delete user request.`,
+                );
+                // Send the delete user request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteUser },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_EXISTING_USER, {
+                    ...response,
+                });
+                // Log that the delete user request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_EXISTING_USER,
+                    "Deleting user complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            expired: async () => {
+                // Log the delete all expired users process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_EXPIRED_USERS,
+                    `Deleteing all expired users.`,
+                );
+
+                // Prepare delete expired users parameters
+                const deleteExpiredUser: DeleteExpiredUserParams = {
+                    type: "delexpusers",
+                };
+
+                // Log the delete all expired users request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_EXPIRED_USERS,
+                    `Sending delete all expired users request.`,
+                );
+                // Send the delete all expired users request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteExpiredUser },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_EXPIRED_USERS, {
+                    ...response,
+                });
+                // Log that the delete all expired users request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_EXPIRED_USERS,
+                    "Deleting all expired users complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+        },
+        hwid: {
+            reset: async ({ username }) => {
+                // Log the reset user hwid process
+                this._logger.debug(
+                    EVENT_TYPE.RESET_USER_HWID,
+                    `Reseting users hwid.`,
+                );
+
+                // Prepare reset users hwid parameters
+                const resetUserHwid: ResetUserHWIDParams = {
+                    type: "resetuser",
+                    user: username,
+                };
+
+                // Log the reset users hwid request
+                this._logger.debug(
+                    EVENT_TYPE.RESET_USER_HWID,
+                    `Sending reset users hwid request.`,
+                );
+                // Send the reset users hwid request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...resetUserHwid },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.RESET_USER_HWID, {
+                    ...response,
+                });
+                // Log that the reset users hwid request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.RESET_USER_HWID,
+                    "Resetting users hwid complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            resetAll: async () => {
+                // Log the reset all users hwid process
+                this._logger.debug(
+                    EVENT_TYPE.RESET_ALL_USERS_HWID,
+                    `Reseting all users hwid.`,
+                );
+
+                // Prepare reset all users hwid parameters
+                const resetAllUserHwid: ResetAllUsersHWIDParams = {
+                    type: "resetalluser",
+                };
+
+                // Log the reset all users hwid request
+                this._logger.debug(
+                    EVENT_TYPE.RESET_ALL_USERS_HWID,
+                    `Sending reset all users hwid request.`,
+                );
+                // Send the reset all users hwid request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...resetAllUserHwid },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.RESET_ALL_USERS_HWID, {
+                    ...response,
+                });
+                // Log that the reset all users hwid request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.RESET_ALL_USERS_HWID,
+                    "Resetting all users hwid complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            add: async ({ username, hwid }) => {
+                // Log the add users hwid process
+                this._logger.debug(
+                    EVENT_TYPE.ADD_USER_HWID,
+                    `Adding users hwid.`,
+                );
+
+                // Prepare add users hwid parameters
+                const addUserHwid: AddHWIDToUserParams = {
+                    type: "addhwiduser",
+                    hwid,
+                    user: username,
+                };
+
+                // Log the add users hwid request
+                this._logger.debug(
+                    EVENT_TYPE.ADD_USER_HWID,
+                    `Sending addusers hwid request.`,
+                );
+                // Send the add users hwid request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...addUserHwid },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.ADD_USER_HWID, {
+                    ...response,
+                });
+                // Log that the add users hwid request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.ADD_USER_HWID,
+                    "Adding users hwid complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+        },
+        var: {
+            set: async ({ username, varData, varName, readonly = false }) => {
+                // Log the set users var process
+                this._logger.debug(
+                    EVENT_TYPE.SET_USER_VAR,
+                    `Setting users var.`,
+                );
+
+                // Prepare setting users var parameters
+                const setUsersVar: SetUsersVarParams = {
+                    type: "setvar",
+                    user: username,
+                    data: varData,
+                    var: varName,
+                    readonly: readonly ? "1" : "0",
+                };
+
+                // Log the set users var request
+                this._logger.debug(
+                    EVENT_TYPE.SET_USER_VAR,
+                    `Sending set users var request.`,
+                );
+                // Send the set users var request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...setUsersVar },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.SET_USER_VAR, {
+                    ...response,
+                });
+                // Log that the set users var request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.SET_USER_VAR,
+                    "setting users var complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            get: async ({ username, varName }) => {
+                // Log the get users var process
+                this._logger.debug(
+                    EVENT_TYPE.GET_USER_VAR,
+                    `Getting users var.`,
+                );
+
+                // Prepare getting users var parameters
+                const getUsersVar: GetUsersVarParams = {
+                    type: "getvar",
+                    user: username,
+                    var: varName,
+                };
+
+                // Log the get users var request
+                this._logger.debug(
+                    EVENT_TYPE.GET_USER_VAR,
+                    `Sending Get users var request.`,
+                );
+                // Send the get users var request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...getUsersVar },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.GET_USER_VAR, {
+                    ...response,
+                });
+                // Log that the get users var request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.GET_USER_VAR,
+                    "Getting users var complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            getAll: async () => {
+                // Log the get all users var process
+                this._logger.debug(
+                    EVENT_TYPE.FETCH_ALL_USER_VARS,
+                    `Getting all users var.`,
+                );
+
+                // Prepare getting all users var parameters
+                const getAllUsersVar: FetchAllUsersVarsParams = {
+                    type: "fetchalluservars",
+                };
+
+                // Log the get users var request
+                this._logger.debug(
+                    EVENT_TYPE.GET_USER_VAR,
+                    `Sending Get users var request.`,
+                );
+                // Send the get all users var request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...getAllUsersVar },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.FETCH_ALL_USER_VARS, {
+                    ...response,
+                });
+                // Log that the get all users var request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.FETCH_ALL_USER_VARS,
+                    "Getting all users var complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            delete: {
+                single: async ({ username, varName }) => {
+                    // Log the delete user var process
+                    this._logger.debug(
+                        EVENT_TYPE.DELETE_USER_VAR,
+                        `Deleting users var.`,
+                    );
+
+                    // Prepare deleting users var parameters
+                    const deleteUsersVar: DeleteUsersVarParams = {
+                        type: "deluservar",
+                        user: username,
+                        var: varName,
+                    };
+
+                    // Log the delete users var request
+                    this._logger.debug(
+                        EVENT_TYPE.DELETE_USER_VAR,
+                        `Sending delete users var request.`,
+                    );
+                    // Send the delete users var request and wait for the response
+                    const response = await this._makeRequest({
+                        params: { ...deleteUsersVar },
+                    });
+                    // log the response to the event emitter
+                    this._eventEmitter.emit(EVENT_TYPE.DELETE_USER_VAR, {
+                        ...response,
+                    });
+                    // Log that the delete users var request is complete and return the response
+                    this._logger.debug(
+                        EVENT_TYPE.DELETE_USER_VAR,
+                        "Deleting users var complete. Returning response.",
+                    );
+                    // return the response
+                    return response;
+                },
+                byName: async ({ varName }) => {
+                    // Log the delete user var by name process
+                    this._logger.debug(
+                        EVENT_TYPE.DELETE_USER_VAR_BY_NAME,
+                        `Deleting users var by name.`,
+                    );
+
+                    // Prepare deleting users var parameters
+                    const deleteUsersVarByName: DeleteUsersVarWithNameParams = {
+                        type: "massUserVarDelete",
+                        name: varName,
+                    };
+
+                    // Log the delete users var by name request
+                    this._logger.debug(
+                        EVENT_TYPE.DELETE_USER_VAR_BY_NAME,
+                        `Sending delete users var by name request.`,
+                    );
+                    // Send the delete users var by name request and wait for the response
+                    const response = await this._makeRequest({
+                        params: { ...deleteUsersVarByName },
+                    });
+                    // log the response to the event emitter
+                    this._eventEmitter.emit(
+                        EVENT_TYPE.DELETE_USER_VAR_BY_NAME,
+                        {
+                            ...response,
+                        },
+                    );
+                    // Log that the delete users var by name request is complete and return the response
+                    this._logger.debug(
+                        EVENT_TYPE.DELETE_USER_VAR_BY_NAME,
+                        "Deleting users var by name complete. Returning response.",
+                    );
+                    // return the response
+                    return response;
+                },
+            },
+        },
+        subscription: {
+            delete: async ({ username, subName }) => {
+                // Log the delete user sub process
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_USER_SUB,
+                    `Deleting users sub.`,
+                );
+
+                // Prepare deleting users sub parameters
+                const deleteUsersSub: DeleteUsersSubParams = {
+                    type: "delsub",
+                    user: username,
+                    sub: subName,
+                };
+
+                // Log the delete users sub request
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_USER_SUB,
+                    `Sending delete users sub request.`,
+                );
+                // Send the delete users sub request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...deleteUsersSub },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.DELETE_USER_SUB, {
+                    ...response,
+                });
+                // Log that the delete users sub request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.DELETE_USER_SUB,
+                    "Deleting users sub complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            subtract: async ({ username, subName, seconds }) => {
+                // Log the subtract user sub process
+                this._logger.debug(
+                    EVENT_TYPE.SUBTRACT_USER_SUB,
+                    `Subtracting users sub.`,
+                );
+
+                // Prepare subtract users sub parameters
+                const subtractUsersSub: SubtractUsersSubParams = {
+                    type: "subtract",
+                    seconds: seconds.toString(),
+                    user: username,
+                    sub: subName,
+                };
+
+                // Log the subtract users sub request
+                this._logger.debug(
+                    EVENT_TYPE.SUBTRACT_USER_SUB,
+                    `Sending subtract users sub request.`,
+                );
+                // Send the subtract users sub request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...subtractUsersSub },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.SUBTRACT_USER_SUB, {
+                    ...response,
+                });
+                // Log that the subtract users sub request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.SUBTRACT_USER_SUB,
+                    "Subtracting users sub complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+            count: async ({ subName }) => {
+                // Log the count sub process
+                this._logger.debug(EVENT_TYPE.COUNT_SUBS, `Counting subs.`);
+
+                // Prepare count sub parameters
+                const countSub: CountSubscriptionsParams = {
+                    type: "countsubs",
+                    name: subName,
+                };
+
+                // Log the count sub request
+                this._logger.debug(
+                    EVENT_TYPE.COUNT_SUBS,
+                    `Sending count sub request.`,
+                );
+                // Send the count sub request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...countSub },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.COUNT_SUBS, {
+                    ...response,
+                });
+                // Log that the count sub request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.COUNT_SUBS,
+                    "Counting subs complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+
+            extend: async ({
+                username,
+                subName,
+                expiry,
+                activeOnly = false,
+            }) => {
+                // Log the extend sub process
+                this._logger.debug(
+                    EVENT_TYPE.EXTEND_USERS_SUB,
+                    `Extending sub.`,
+                );
+
+                // Prepare extend sub parameters
+                const extendSub: ExtendUsersSubParams = {
+                    type: "extend",
+                    user: username,
+                    sub: subName,
+                    expiry: expiry,
+                    activeOnly: activeOnly ? "1" : "0",
+                };
+
+                // Log the extend sub request
+                this._logger.debug(
+                    EVENT_TYPE.EXTEND_USERS_SUB,
+                    `Sending extend sub request.`,
+                );
+                // Send the extend sub request and wait for the response
+                const response = await this._makeRequest({
+                    params: { ...extendSub },
+                });
+                // log the response to the event emitter
+                this._eventEmitter.emit(EVENT_TYPE.EXTEND_USERS_SUB, {
+                    ...response,
+                });
+                // Log that the extend sub request is complete and return the response
+                this._logger.debug(
+                    EVENT_TYPE.EXTEND_USERS_SUB,
+                    "Extending sub complete. Returning response.",
+                );
+                // return the response
+                return response;
+            },
+        },
+        create: async ({
+            expiry = "1",
+            subName = "default",
+            username,
+            password,
+        }) => {
+            // Log the create user process
+            this._logger.debug(EVENT_TYPE.CREATE_USER, `Creating a new user.`);
+
+            // Prepare create new user parameters
+            const newUser: CreateUserParams = {
+                type: "adduser",
+                expiry,
+                sub: subName,
+                user: username,
+                pass: password,
+            };
+
+            // Log the create user request
+            this._logger.debug(
+                EVENT_TYPE.CREATE_USER,
+                `Sending create user request.`,
+            );
+            // Send the create user request and wait for the response
+            const response = await this._makeRequest({
+                params: { ...newUser },
+            });
+            // log the response to the event emitter
+            this._eventEmitter.emit(EVENT_TYPE.CREATE_USER, {
+                ...response,
+            });
+            // Log that the create user request is complete and return the response
+            this._logger.debug(
+                EVENT_TYPE.CREATE_USER,
+                "Creating user complete. Returning response.",
+            );
+            // return the response
+            return response;
         },
     };
 }

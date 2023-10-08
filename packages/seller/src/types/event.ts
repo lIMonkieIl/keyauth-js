@@ -18,6 +18,32 @@ import {
     UnbanLicenseResponse,
     VerifyLicenseResponse,
 } from "./license";
+import {
+    CreateUser,
+    DeleteExistingUserResponse,
+    DeleteExpiredUserResponse,
+    ResetUserHWIDResponse,
+    GetUsersVarResponse,
+    SetUsersVarResponse,
+    BanUserResponse,
+    UnbanUser,
+    UnbanUserResponse,
+    DeleteUsersVarWithNameResponse,
+    DeleteUsersSubResponse,
+    DeleteAllUsersResponse,
+    ResetAllUsersHWIDResponse,
+    VerifyUserExistsResponse,
+    AddHWIDToUserResponse,
+    ResetUserPasswordResponse,
+    ChangeUsersEmailResponse,
+    FetchAllUsersVarsResponse,
+    RetrieveUserDataResponse,
+    FetchAllUsersUsersnamesResponse,
+    CountSubscriptionsResponse,
+    UserCoolDownResponse,
+    ExtendUsersSubResponse,
+    DeleteUsersVarResponse,
+} from "./user";
 
 /**
  * All the event types
@@ -38,6 +64,30 @@ export type EventType =
     | "getkey"
     | "setnote"
     | "info"
+    | "adduser"
+    | "deluser"
+    | "delexpusers"
+    | "resetuser"
+    | "getvar"
+    | "setvar"
+    | "banuser"
+    | "unbanuser"
+    | "massUserVarDelete"
+    | "delsub"
+    | "delallusers"
+    | "resetalluser"
+    | "verifyuser"
+    | "addhwiduser"
+    | "resetpw"
+    | "editemail"
+    | "fetchalluservars"
+    | "userdata"
+    | "fetchallusernames"
+    | "setcooldown"
+    | "extend"
+    | "deluservar"
+    | "subtract"
+    | "countsubs"
     // Added custom types
     | "ratelimit"
     | "instance"
@@ -64,6 +114,30 @@ export enum EVENT_TYPE {
     GET_LICENSE = "getkey",
     SET_LICENSE_NOTE = "setnote",
     GET_LICENSE_INFO = "info",
+    CREATE_USER = "adduser",
+    DELETE_EXISTING_USER = "deluser",
+    DELETE_EXPIRED_USERS = "delexpusers",
+    RESET_USER_HWID = "resetuser",
+    SET_USER_VAR = "setvar",
+    GET_USER_VAR = "getvar",
+    BAN_USER = "banuser",
+    UNBAN_USER = "unbanuser",
+    DELETE_USER_VAR_BY_NAME = "massUserVarDelete",
+    DELETE_USER_SUB = "delsub",
+    DELETE_ALL_USERS = "delallusers",
+    RESET_ALL_USERS_HWID = "resetalluser",
+    VERIFY_USER_EXISTS = "verifyuser",
+    ADD_USER_HWID = "addhwiduser",
+    RESET_USER_PASSWORD = "resetpw",
+    CHANGE_USER_EMAIL = "editemail",
+    FETCH_ALL_USER_VARS = "fetchalluservars",
+    RETRIEVE_USER_DATA = "userdata",
+    GET_ALL_USERS_USERNAMES = "fetchallusernames",
+    SET_USER_COOLDOWN = "setcooldown",
+    EXTEND_USERS_SUB = "extend",
+    DELETE_USER_VAR = "deluservar",
+    SUBTRACT_USER_SUB = "subtract",
+    COUNT_SUBS = "countsubs",
     // Added custom types
     INSTANCE = "instance",
     REQUEST = "request",
@@ -107,4 +181,28 @@ export type EventMap = {
     getkey: (data: RetrieveLicenseFromUserResponse) => void;
     setnote: (data: SetLicenseNoteResponse) => void;
     info: (data: GetLicenseInfoResponse) => void;
+    adduser: (data: CreateUser) => void;
+    deluser: (data: DeleteExistingUserResponse) => void;
+    delexpusers: (data: DeleteExpiredUserResponse) => void;
+    resetuser: (data: ResetUserHWIDResponse) => void;
+    setvar: (data: SetUsersVarResponse) => void;
+    getvar: (data: GetUsersVarResponse) => void;
+    banuser: (data: BanUserResponse) => void;
+    unbanuser: (data: UnbanUserResponse) => void;
+    massUserVarDelete: (data: DeleteUsersVarWithNameResponse) => void;
+    delsub: (data: DeleteUsersSubResponse) => void;
+    delallusers: (data: DeleteAllUsersResponse) => void;
+    resetalluser: (data: ResetAllUsersHWIDResponse) => void;
+    verifyuser: (data: VerifyUserExistsResponse) => void;
+    addhwiduser: (data: AddHWIDToUserResponse) => void;
+    resetpw: (data: ResetUserPasswordResponse) => void;
+    editemail: (data: ChangeUsersEmailResponse) => void;
+    fetchalluservars: (data: FetchAllUsersVarsResponse) => void;
+    userdata: (data: RetrieveUserDataResponse) => void;
+    fetchallusernames: (data: FetchAllUsersUsersnamesResponse) => void;
+    countsubs: (data: CountSubscriptionsResponse) => void;
+    setcooldown: (data: UserCoolDownResponse) => void;
+    extend: (data: ExtendUsersSubResponse) => void;
+    deluservar: (data: DeleteUsersVarResponse) => void;
+    subtract: (data: DeleteUsersSubResponse) => void;
 };
