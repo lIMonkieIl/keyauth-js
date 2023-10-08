@@ -11,6 +11,12 @@ importers:
       '@keyauthjs/client':
         specifier: workspace:^
         version: link:packages/client
+      '@keyauthjs/seller':
+        specifier: workspace:^
+        version: link:packages/seller
+      '@keyauthjs/stores':
+        specifier: workspace:^
+        version: link:packages/stores
     devDependencies:
       '@types/node':
         specifier: ^20.5.6
@@ -88,9 +94,6 @@ importers:
       typed-emitter:
         specifier: ^2.1.0
         version: 2.1.0
-      types:
-        specifier: workspace:*
-        version: link:../../shared/types
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -100,6 +103,9 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.4.0
+      winston:
+        specifier: ^3.10.0
+        version: 3.10.0
     devDependencies:
       '@types/node':
         specifier: ^20.5.6
@@ -128,9 +134,21 @@ importers:
       tsconfig:
         specifier: workspace:*
         version: link:../../shared/tsconfig
-      types:
+      typed-emitter:
+        specifier: ^2.1.0
+        version: 2.1.0
+      typescript:
+        specifier: ^5.2.2
+        version: 5.2.2
+
+  packages/stores:
+    devDependencies:
+      '@keyauthjs/client':
         specifier: workspace:*
-        version: link:../../shared/types
+        version: link:../client
+      tsconfig:
+        specifier: workspace:*
+        version: link:../../shared/tsconfig
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -142,22 +160,6 @@ importers:
         version: 1.10.12(eslint@8.47.0)
 
   shared/tsconfig: {}
-
-  shared/types:
-    dependencies:
-      typed-emitter:
-        specifier: ^2.1.0
-        version: 2.1.0
-    devDependencies:
-      prettier:
-        specifier: ^3.0.2
-        version: 3.0.2
-      tsconfig:
-        specifier: workspace:*
-        version: link:../tsconfig
-      typescript:
-        specifier: ^5.2.2
-        version: 5.2.2
 
 packages:
 
@@ -1519,6 +1521,7 @@ packages:
     requiresBuild: true
     dependencies:
       tslib: 2.6.2
+    dev: true
     optional: true
 
   /safe-buffer@5.2.1:
@@ -1687,6 +1690,7 @@ packages:
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+    dev: true
 
   /turbo-darwin-64@1.10.14:
     resolution: {integrity: sha512-I8RtFk1b9UILAExPdG/XRgGQz95nmXPE7OiGb6ytjtNIR5/UZBS/xVX/7HYpCdmfriKdVwBKhalCoV4oDvAGEg==}
@@ -1764,6 +1768,7 @@ packages:
     resolution: {integrity: sha512-g/KzbYKbH5C2vPkaXGu8DJlHrGKHLsM25Zg9WuC9pMGfuvT+X25tZQWo5fK1BjBm8+UrVE9LDCvaY0CQk+fXDA==}
     optionalDependencies:
       rxjs: 7.8.1
+    dev: true
 
   /typescript@5.2.2:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}

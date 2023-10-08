@@ -14,12 +14,18 @@
     ],
     "allowCompoundWords": true,
     "words": [
+        "addhwiduser",
+        "createdby",
         "fileid",
+        "genby",
         "hwid",
         "keyauthjs",
         "ownerid",
         "pcuser",
+        "resetpw",
         "unban",
+        "unbanuser",
+        "usedby",
         "varid",
         "webid"
     ]

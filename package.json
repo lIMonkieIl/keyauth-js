@@ -2,12 +2,15 @@
     "private": true,
     "scripts": {
         "build": "turbo run build",
+        "build:seller": "turbo run build --filter=@keyauthjs/seller",
         "dev": "ts-node ./main.ts",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\""
     },
     "dependencies": {
-        "@keyauthjs/client": "workspace:^"
+        "@keyauthjs/client": "workspace:^",
+        "@keyauthjs/stores": "workspace:^",
+        "@keyauthjs/seller": "workspace:^"
     },
     "devDependencies": {
         "@types/node": "^20.5.6",
