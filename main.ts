@@ -2,7 +2,7 @@ import { SellerApi, EXPIRY, CHARACTER, EVENT_TYPE } from "@keyauthjs/seller";
 async function main() {
     const sellerAPi = new SellerApi(
         {
-            sellerKey: "9771968d4b6e487dc808f242428cff85",
+           ,
         },
         { logger: { active: true, level: "debug" } },
     );
